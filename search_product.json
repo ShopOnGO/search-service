@@ -1,0 +1,31 @@
+{
+    "mappings": {
+      "properties": {
+        "id":          { "type": "keyword" },
+        "name":        { "type": "text" },
+        "description": { "type": "text" },
+        "category_id": { "type": "integer" },
+        "brand_id":    { "type": "integer" },
+        "image_urls":  { "type": "keyword" },
+        "variants": {
+          "type": "nested",
+          "properties": {
+            "variant_id":    { "type": "keyword" },
+            "sku":           { "type": "keyword" },
+            "price":         { "type": "double" },
+            "discount":      { "type": "double" },
+            "sizes":         { "type": "integer" },
+            "colors":        { "type": "keyword" },
+            "material":      { "type": "text" },
+            "stock":         { "type": "integer" },
+            "rating":        { "type": "double" },
+            "review_count":  { "type": "integer" },
+            "rating_sum":    { "type": "integer" },
+            "min_order":     { "type": "integer" },
+            "dimensions":    { "type": "keyword" }
+          }
+        }
+      }
+    }
+  }
+  
