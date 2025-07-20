@@ -28,8 +28,8 @@ FROM alpine:latest
 
 WORKDIR /search
 
-# Устанавливаем postgresql-client и dos2unix
-RUN apk add --no-cache postgresql-client dos2unix
+# Устанавливаем postgresql-client, dos2unix и curl
+RUN apk add --no-cache postgresql-client dos2unix curl
 
 COPY .env /search/.env
 
@@ -42,6 +42,11 @@ RUN chmod +x /search/wait-for-db.sh
 
 # Преобразуем формат строки в скрипте wait-for-db.sh в Unix-формат
 RUN dos2unix /search/wait-for-db.sh
+
+# Копируем wait-for-es.sh и делаем исполняемым
+COPY --from=builder /search/wait-for-es.sh /search/wait-for-es.sh
+RUN chmod +x /search/wait-for-es.sh
+RUN dos2unix /search/wait-for-es.sh
 
 # Запуск приложения
 CMD ["/search/search_service"]

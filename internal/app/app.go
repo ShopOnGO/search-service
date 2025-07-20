@@ -11,9 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
+
 	"github.com/ShopOnGO/search-service/configs"
+	"github.com/ShopOnGO/search-service/internal/elastic"
 	"github.com/ShopOnGO/search-service/migrations"
 	"github.com/ShopOnGO/search-service/pkg/db"
+	"github.com/ShopOnGO/search-service/internal/product"
 )
 
 var (
@@ -31,6 +34,8 @@ func InitServices() *App {
 	migrations.CheckForMigrations()
 	conf := configs.LoadConfig()
 	_ = db.NewDB(conf)
+
+	elastic.Init(conf)
 
 	// reviewRepo := review.NewReviewRepository(database)
 	// questionRepo := question.NewQuestionRepository(database)
@@ -57,6 +62,8 @@ func RunHTTPServer(app *App) {
 	router := gin.Default()
 	// review.NewReviewHandler(router, app.reviewSvc)
 	// question.NewQuestionHandler(router, app.questionSvc)
+
+	product.NewSearchHandler(router)
 
 	httpSrv = &http.Server{
 		Addr:    ":8085",

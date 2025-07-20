@@ -4,6 +4,7 @@ go 1.23.3
 
 require (
 	github.com/ShopOnGO/ShopOnGO v0.0.0-20250501184559-9fc669418e4d
+	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/gin-gonic/gin v1.10.1
 	github.com/joho/godotenv v1.5.1
 	gorm.io/driver/postgres v1.6.0

@@ -9,11 +9,17 @@ import (
 
 type Config struct {
 	Db DbConfig
+	Elastic ElasticSearch
 	Kafka KafkaConfig
 }
 
 type DbConfig struct {
 	Dsn string
+}
+
+type ElasticSearch struct {
+	URL   string
+	Index string
 }
 
 type KafkaConfig struct {
@@ -35,6 +41,10 @@ func LoadConfig() *Config {
 	return &Config{
 		Db: DbConfig{
 			Dsn: os.Getenv("DSN"),
+		},
+		Elastic: ElasticSearch{
+			URL: os.Getenv("ELASTIC_URL"),
+			Index: os.Getenv("ELASTIC_INDEX"),
 		},
 		// Kafka: KafkaConfig{
 		// 	Brokers: brokers,

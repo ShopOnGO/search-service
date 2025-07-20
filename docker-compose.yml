@@ -3,14 +3,21 @@ services:
   search_container:
     container_name: search_container
     build: ./
-    command: ./wait-for-db.sh ./search_service "migrate"
+    command: >
+      sh -c "./wait-for-db.sh go_shop_postgres:5432 -- \
+            ./wait-for-es.sh elasticsearch 9200 -- \
+            ./search_service migrate"
     environment:
       - POSTGRES_HOST=go_shop_postgres
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=5432
+      - ELASTIC_URL=http://elasticsearch:9200
+      - ELASTIC_INDEX=products
       # - KAFKA_BROKER=kafka:9092
+    depends_on:
+      - elasticsearch
     networks:
       - shopongo_default
     ports:
@@ -26,6 +33,14 @@ services:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    networks:
+      - shopongo_default
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
 volumes:
   esdata:
