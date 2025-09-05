@@ -1,10 +1,11 @@
 package elastic
 
 import (
-    "log"
+	"log"
 
-    "github.com/elastic/go-elasticsearch/v7"
-    "github.com/ShopOnGO/search-service/configs"
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
+	"github.com/ShopOnGO/search-service/configs"
+	"github.com/elastic/go-elasticsearch/v7"
 )
 
 var (
@@ -19,18 +20,19 @@ func Init(cfg *configs.Config) {
 
     client, err := elasticsearch.NewClient(esCfg)
     if err != nil {
-        log.Fatalf("[elastic] failed to create client: %v", err)
+        logger.Errorf("[elastic] failed to create client: %v", err)
+        return
     }
 
     // Проверка соединения
     res, err := client.Info()
     if err != nil {
-        log.Fatalf("[elastic] failed to connect to Elasticsearch: %v", err)
+        logger.Errorf("[elastic] failed to connect to Elasticsearch: %v", err)
+        return
     }
     defer res.Body.Close()
 
     ESClient = client
     Index = cfg.Elastic.Index
-
-    log.Printf("[elastic] connected to %s | index=%s", cfg.Elastic.URL, Index)
+    logger.Infof("[elastic] connected to %s | index=%s", cfg.Elastic.URL, Index)
 }

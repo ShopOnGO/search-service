@@ -1,15 +1,15 @@
 package product
 
 import (
-	"net/http"
-	"strconv"
-
-	"github.com/gin-gonic/gin"
-	"github.com/ShopOnGO/search-service/internal/elastic"
 	"bytes"
 	"encoding/json"
 	"io"
 	"log"
+	"net/http"
+
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
+	"github.com/ShopOnGO/search-service/internal/elastic"
+	"github.com/gin-gonic/gin"
 )
 
 type SearchHandler struct{}
@@ -20,6 +20,7 @@ func NewSearchHandler(router *gin.Engine) *SearchHandler {
 	searchGroup := router.Group("/search-service/products")
 	{
 		searchGroup.GET("/search", handler.searchProducts)
+		searchGroup.GET("/", handler.getAllProducts)
 	}
 
 	return handler
@@ -37,50 +38,93 @@ func NewSearchHandler(router *gin.Engine) *SearchHandler {
 // @Failure 500 {object} gin.H
 // @Router /search-service/products/search [get]
 func (h *SearchHandler) searchProducts(c *gin.Context) {
-	name := c.Query("name")
-	minPrice := c.Query("min_price")
-	maxPrice := c.Query("max_price")
+	var req SearchRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid parameters", "details": err.Error()})
+		return
+	}
+
+	if err := req.Validate(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Page == 0 {
+		req.Page = 1
+	}
+	if req.Limit == 0 {
+		req.Limit = 20
+	}
 
 	// Построим Elasticsearch Query DSL
 	var mustClauses []map[string]interface{}
 
-	if name != "" {
+	// Поиск по названию (поддержка частичного совпадения)
+	if req.Name != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
-			"match": map[string]interface{}{
-				"name": name,
+			"multi_match": map[string]interface{}{
+				"query":     req.Name,
+				"fields":    []string{"name^2", "description"},
+				"type":      "best_fields",
+				"fuzziness": "AUTO",
 			},
 		})
 	}
 
-	if minPrice != "" || maxPrice != "" {
+	// Фильтр по цене
+	if req.MinPrice > 0 || req.MaxPrice > 0 {
 		rangeQuery := map[string]interface{}{
-			"range": map[string]interface{}{
-				"variants.price": map[string]interface{}{},
+			"nested": map[string]interface{}{
+				"path": "variants",
+				"query": map[string]interface{}{
+					"range": map[string]interface{}{
+						"variants.price": map[string]interface{}{},
+					},
+				},
 			},
 		}
-		if minPrice != "" {
-			if p, err := strconv.ParseFloat(minPrice, 64); err == nil {
-				rangeQuery["range"].(map[string]interface{})["variants.price"].(map[string]interface{})["gte"] = p
-			}
+
+		priceRange := make(map[string]interface{})
+		if req.MinPrice > 0 {
+			priceRange["gte"] = req.MinPrice
 		}
-		if maxPrice != "" {
-			if p, err := strconv.ParseFloat(maxPrice, 64); err == nil {
-				rangeQuery["range"].(map[string]interface{})["variants.price"].(map[string]interface{})["lte"] = p
-			}
+		if req.MaxPrice > 0 {
+			priceRange["lte"] = req.MaxPrice
 		}
+
+		rangeQuery["nested"].(map[string]interface{})["query"].(map[string]interface{})["range"].(map[string]interface{})["variants.price"] = priceRange
 		mustClauses = append(mustClauses, rangeQuery)
 	}
 
-	query := map[string]interface{}{
-		"query": map[string]interface{}{
-			"bool": map[string]interface{}{
-				"must": mustClauses,
+	// Если нет условий поиска, возвращаем все товары
+	var query map[string]interface{}
+	if len(mustClauses) == 0 {
+		query = map[string]interface{}{
+			"query": map[string]interface{}{
+				"match_all": map[string]interface{}{},
 			},
-		},
+		}
+	} else {
+		query = map[string]interface{}{
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"must": mustClauses,
+				},
+			},
+		}
+	}
+
+	// Добавляем пагинацию и сортировку
+	query["from"] = (req.Page - 1) * req.Limit
+	query["size"] = req.Limit
+	query["sort"] = []map[string]interface{}{
+		{"_score": map[string]interface{}{"order": "desc"}},
+		{"name.keyword": map[string]interface{}{"order": "asc"}},
 	}
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		logger.Infof("Query serialization error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка сериализации запроса"})
 		return
 	}
@@ -91,32 +135,162 @@ func (h *SearchHandler) searchProducts(c *gin.Context) {
 		elastic.ESClient.Search.WithTrackTotalHits(true),
 		elastic.ESClient.Search.WithPretty(),
 	)
-	if err != nil || res.StatusCode != http.StatusOK {
-		log.Printf("Search error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка поиска"})
+	if err != nil {
+		log.Printf("Elasticsearch search error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка подключения к поисковой системе"})
 		return
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		log.Printf("Elasticsearch returned status %d: %s", res.StatusCode, string(bodyBytes))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка поиска"})
+		return
+	}
+
 	var esResp struct {
 		Hits struct {
+			Total struct {
+				Value int `json:"value"`
+			} `json:"total"`
+			Hits []struct {
+				Source ESProduct `json:"_source"`
+				Score  float64   `json:"_score"`
+			} `json:"hits"`
+		} `json:"hits"`
+	}
+
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Printf("Error reading response body: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка чтения ответа"})
+		return
+	}
+
+	if err := json.Unmarshal(bodyBytes, &esResp); err != nil {
+		log.Printf("Unmarshal error: %v\nRaw: %s", err, string(bodyBytes))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка обработки ответа поисковой системы"})
+		return
+	}
+
+	// Формируем ответ с метаданными
+	var products []ESProduct
+	for _, hit := range esResp.Hits.Hits {
+		products = append(products, hit.Source)
+	}
+
+	response := SearchResponse{
+		Products: products,
+		Total:    esResp.Hits.Total.Value,
+		Page:     req.Page,
+		Limit:    req.Limit,
+		Pages:    (esResp.Hits.Total.Value + req.Limit - 1) / req.Limit,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// getAllProducts godoc
+// @Summary Получить все продукты
+// @Description Возвращает все продукты с пагинацией
+// @Tags Поиск
+// @Param page query int false "Номер страницы" default(1)
+// @Param limit query int false "Количество элементов на странице" default(20)
+// @Success 200 {object} product.SearchResponse
+// @Failure 500 {object} gin.H
+// @Router /search-service/products/ [get]
+func (h *SearchHandler) getAllProducts(c *gin.Context) {
+	var req SearchRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid parameters", "details": err.Error()})
+		return
+	}
+
+	// Устанавливаем значения по умолчанию
+	if req.Page == 0 {
+		req.Page = 1
+	}
+	if req.Limit == 0 {
+		req.Limit = 20
+	}
+
+	// Простой запрос для получения всех товаров
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match_all": map[string]interface{}{},
+		},
+		"from": (req.Page - 1) * req.Limit,
+		"size": req.Limit,
+		"sort": []map[string]interface{}{
+			{"name.keyword": map[string]interface{}{"order": "asc"}},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		log.Printf("Query serialization error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка сериализации запроса"})
+		return
+	}
+
+	res, err := elastic.ESClient.Search(
+		elastic.ESClient.Search.WithIndex(elastic.Index),
+		elastic.ESClient.Search.WithBody(&buf),
+		elastic.ESClient.Search.WithTrackTotalHits(true),
+		elastic.ESClient.Search.WithPretty(),
+	)
+	if err != nil {
+		log.Printf("Elasticsearch search error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка подключения к поисковой системе"})
+		return
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		log.Printf("Elasticsearch returned status %d: %s", res.StatusCode, string(bodyBytes))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка поиска"})
+		return
+	}
+
+	var esResp struct {
+		Hits struct {
+			Total struct {
+				Value int `json:"value"`
+			} `json:"total"`
 			Hits []struct {
 				Source ESProduct `json:"_source"`
 			} `json:"hits"`
 		} `json:"hits"`
 	}
 
-	bodyBytes, _ := io.ReadAll(res.Body)
-	if err := json.Unmarshal(bodyBytes, &esResp); err != nil {
-		log.Printf("Unmarshal error: %v\nRaw: %s", err, string(bodyBytes))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка обработки ответа ES"})
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Printf("Error reading response body: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка чтения ответа"})
 		return
 	}
 
+	if err := json.Unmarshal(bodyBytes, &esResp); err != nil {
+		log.Printf("Unmarshal error: %v\nRaw: %s", err, string(bodyBytes))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка обработки ответа поисковой системы"})
+		return
+	}
+
+	// Формируем ответ с метаданными
 	var products []ESProduct
 	for _, hit := range esResp.Hits.Hits {
 		products = append(products, hit.Source)
 	}
 
-	c.JSON(http.StatusOK, products)
+	response := SearchResponse{
+		Products: products,
+		Total:    esResp.Hits.Total.Value,
+		Page:     req.Page,
+		Limit:    req.Limit,
+		Pages:    (esResp.Hits.Total.Value + req.Limit - 1) / req.Limit,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
