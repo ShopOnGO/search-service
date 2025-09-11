@@ -1,8 +1,6 @@
 package elastic
 
 import (
-	"log"
-
 	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 	"github.com/ShopOnGO/search-service/configs"
 	"github.com/elastic/go-elasticsearch/v7"
