@@ -15,11 +15,13 @@ type Query struct {
 }
 
 type SearchInput struct {
-	Name     *string  `json:"name,omitempty"`
-	MinPrice *float64 `json:"minPrice,omitempty"`
-	MaxPrice *float64 `json:"maxPrice,omitempty"`
-	Page     *int32   `json:"page,omitempty"`
-	Limit    *int32   `json:"limit,omitempty"`
+	Name       *string  `json:"name,omitempty"`
+	MinPrice   *float64 `json:"minPrice,omitempty"`
+	MaxPrice   *float64 `json:"maxPrice,omitempty"`
+	CategoryID *int32   `json:"categoryID,omitempty"`
+	BrandID    *int32   `json:"brandID,omitempty"`
+	Page       *int32   `json:"page,omitempty"`
+	Limit      *int32   `json:"limit,omitempty"`
 }
 
 type SearchResponse struct {

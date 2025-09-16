@@ -30,6 +30,8 @@ input SearchInput {
   name: String
   minPrice: Float
   maxPrice: Float
+  categoryID: Int
+  brandID: Int
   page: Int
   limit: Int
 }

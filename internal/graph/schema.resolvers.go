@@ -12,7 +12,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ShopOnGO/search-service/internal/elastic"
 	"github.com/ShopOnGO/search-service/internal/graph/model"
@@ -37,7 +36,7 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 
 	var mustClauses []map[string]interface{}
 
-	// Поиск по имени
+	// Поиск по имени и описанию
 	if input.Name != nil && *input.Name != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
 			"multi_match": map[string]interface{}{
@@ -45,6 +44,96 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 				"fields":    []string{"name^2", "description"},
 				"type":      "best_fields",
 				"fuzziness": "AUTO",
+			},
+		})
+	}
+
+	// // Фильтр по конкретному id продукта
+	// if input.ProductID != nil && *input.ProductID != "" {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"id": *input.ProductID,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному id варианта продукта
+	// if input.VariantID != nil && *input.VariantID != "" {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.variant_id": *input.VariantID,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному sku варианта продукта
+	// if input.SKU != nil && *input.SKU != "" {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.sku": *input.SKU,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному material варианта продукта
+	// if input.Material != nil && *input.Material != "" {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.material": *input.Material,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному color варианта продукта
+	// if input.Color != nil && *input.Color != "" {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.colors": *input.Color,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному size варианта продукта
+	// if input.Size != nil && *input.Size != 0 {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.sizes": *input.Size,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному rating варианта продукта
+	// if input.Rating != nil && *input.Rating != 0 {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.rating": *input.Rating,
+	// 		},
+	// 	})
+	// }
+
+	// // Фильтр по конкретному stock варианта продукта
+	// if input.Stock != nil && *input.Stock != 0 {
+	// 	mustClauses = append(mustClauses, map[string]interface{}{
+	// 		"term": map[string]interface{}{
+	// 			"variants.stock": *input.Stock,
+	// 		},
+	// 	})
+	// }
+
+	// Фильтр по category_id
+	if input.CategoryID != nil {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"term": map[string]interface{}{
+				"category_id": *input.CategoryID,
+			},
+		})
+	}
+
+	// Фильтр по brand_id
+	if input.BrandID != nil {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"term": map[string]interface{}{
+				"brand_id": *input.BrandID,
 			},
 		})
 	}
@@ -59,7 +148,6 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 			priceRange["lte"] = *input.MaxPrice
 		}
 
-		// В nested query путь — "variants", а поле внутри nested — "price"
 		rangeQuery := map[string]interface{}{
 			"nested": map[string]interface{}{
 				"path": "variants",
@@ -73,7 +161,6 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 
 		mustClauses = append(mustClauses, rangeQuery)
 	}
-
 
 	var query map[string]interface{}
 	if len(mustClauses) == 0 {
@@ -147,7 +234,7 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 	// Конвертируем в model.Product
 	products := make([]*model.Product, 0, len(esResp.Hits.Hits))
 	for _, hit := range esResp.Hits.Hits {
-		products = append(products, convertESProductToModel(&hit.Source))
+		products = append(products, ConvertESProductToModel(&hit.Source))
 	}
 
 	total := esResp.Hits.Total.Value
@@ -171,54 +258,3 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
-
-
-func convertESProductToModel(p *product.ESProduct) *model.Product {
-	// Description pointer
-	var descPtr *string
-	if p.Description != "" {
-		descPtr = &p.Description
-	}
-
-	// Category/Brand cast
-	cat := int32(p.CategoryID)
-	brand := int32(p.BrandID)
-
-	// Variants
-	var variants []*model.Variant
-	for _, v := range p.Variants {
-		// sizes convert []int -> []int32
-		sizes32 := make([]int32, 0, len(v.Sizes))
-		for _, s := range v.Sizes {
-			sizes32 = append(sizes32, int32(s))
-		}
-
-		var matPtr *string
-		if v.Material != "" {
-			matPtr = &v.Material
-		}
-
-		variants = append(variants, &model.Variant{
-			VariantID: v.VariantID,
-			Sku:       v.SKU,
-			Price:     v.Price,
-			Sizes:     sizes32,
-			Colors:    v.Colors,
-			Material:  matPtr,
-			Stock:     int32(v.Stock),
-			Rating:    v.Rating,
-		})
-	}
-
-	// ID в model.Product — string
-	idStr := strconv.FormatUint(uint64(p.ID), 10)
-
-	return &model.Product{
-		ID:          idStr,
-		Name:        p.Name,
-		Description: descPtr,
-		CategoryID:  cat,
-		BrandID:     brand,
-		Variants:    variants,
-	}
-}
