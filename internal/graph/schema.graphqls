@@ -1,0 +1,39 @@
+type Variant {
+  variant_id: ID!
+  sku: String!
+  price: Float!
+  sizes: [Int!]!
+  colors: [String!]!
+  material: String
+  stock: Int!
+  rating: Float!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  description: String
+  category_id: Int!
+  brand_id: Int!
+  variants: [Variant!]!
+}
+
+type SearchResponse {
+  products: [Product!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  pages: Int!
+}
+
+input SearchInput {
+  name: String
+  minPrice: Float
+  maxPrice: Float
+  page: Int
+  limit: Int
+}
+
+type Query {
+  searchProducts(input: SearchInput!): SearchResponse!
+}

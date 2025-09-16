@@ -193,11 +193,12 @@ func (h *SearchHandler) searchProducts(c *gin.Context) {
 
 // getAllProducts godoc
 // @Summary Получить все продукты
-// @Description Возвращает все продукты с пагинацией
+// @Description Возвращает все продукты с пагинацией (ограничено 100 элементами на страницу)
 // @Tags Поиск
 // @Param page query int false "Номер страницы" default(1)
-// @Param limit query int false "Количество элементов на странице" default(20)
+// @Param limit query int false "Количество элементов на странице" default(20) minimum(1) maximum(100)
 // @Success 200 {object} product.SearchResponse
+// @Failure 400 {object} gin.H
 // @Failure 500 {object} gin.H
 // @Router /search-service/products/ [get]
 func (h *SearchHandler) getAllProducts(c *gin.Context) {
@@ -213,6 +214,15 @@ func (h *SearchHandler) getAllProducts(c *gin.Context) {
 	}
 	if req.Limit == 0 {
 		req.Limit = 20
+	}
+
+	if req.Limit > 100 { // Ограничение для защиты ES
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "limit cannot exceed 100 items per page",
+			"max_limit": 100,
+			"provided_limit": req.Limit,
+		})
+		return
 	}
 
 	// Простой запрос для получения всех товаров

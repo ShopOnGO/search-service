@@ -16,7 +16,10 @@ import (
 	"github.com/ShopOnGO/search-service/internal/elastic"
 	"github.com/ShopOnGO/search-service/migrations"
 	"github.com/ShopOnGO/search-service/pkg/db"
-	"github.com/ShopOnGO/search-service/internal/product"
+
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/ShopOnGO/search-service/internal/graph"
 )
 
 var (
@@ -25,8 +28,6 @@ var (
 
 type App struct {
 	conf          *configs.Config
-	// reviewSvc     *review.ReviewService
-	// questionSvc   *question.QuestionService
 	// kafkaConsumer *kafkaService.KafkaService
 }
 
@@ -37,12 +38,6 @@ func InitServices() *App {
 
 	elastic.Init(conf)
 
-	// reviewRepo := review.NewReviewRepository(database)
-	// questionRepo := question.NewQuestionRepository(database)
-
-	// reviewSvc := review.NewReviewService(reviewRepo)
-	// questionSvc := question.NewQuestionService(questionRepo)
-
 	// kafkaConsumer := kafkaService.NewConsumer(
 	// 	conf.Kafka.Brokers,
 	// 	conf.Kafka.Topic,
@@ -52,28 +47,37 @@ func InitServices() *App {
 
 	return &App{
 		conf: conf,
-		// reviewSvc:     reviewSvc,
-		// questionSvc:   questionSvc,
 		// kafkaConsumer: kafkaConsumer,
 	}
 }
 
 func RunHTTPServer(app *App) {
 	router := gin.Default()
-	// review.NewReviewHandler(router, app.reviewSvc)
-	// question.NewQuestionHandler(router, app.questionSvc)
 
-	product.NewSearchHandler(router)
+	// // Старая REST реализация (если нужно)
+	// product.NewSearchHandler(router) // можно удалить после полной миграции
+
+	// GraphQL server
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+
+	router.POST("/search", gin.WrapH(srv))
+	router.GET("/", func(c *gin.Context) {
+		playground.Handler("GraphQL", "/search").ServeHTTP(c.Writer, c.Request)
+	})
 
 	httpSrv = &http.Server{
 		Addr:    ":8085",
 		Handler: router,
 	}
-	logger.Info("HTTP server listening on :8085")
-	if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Infof("HTTP server error: %v\n", err)
-	}
+
+	go func() {
+		logger.Info("HTTP server listening on :8085")
+		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Infof("HTTP server error: %v\n", err)
+		}
+	}()
 }
+
 
 // func RunGRPCServer(app *App, wg *sync.WaitGroup) *grpc.Server {
 // 	defer wg.Done()

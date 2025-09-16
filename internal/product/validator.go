@@ -7,10 +7,10 @@ import (
 
 type SearchRequest struct {
 	Name     string  `form:"name" binding:"omitempty,min=1,max=100"`
-	MinPrice float64 `form:"min_price" binding:"omitempty,min=0"`
-	MaxPrice float64 `form:"max_price" binding:"omitempty,min=0"`
-	Page     int     `form:"page" binding:"omitempty,min=1"`
-	Limit    int     `form:"limit" binding:"omitempty,min=1,max=100"`
+	MinPrice float64 `form:"min_price" binding:"omitempty,min=0, regexp=^\\d+(\\.\\d+)?$"`
+	MaxPrice float64 `form:"max_price" binding:"omitempty,min=0, regexp=^\\d+(\\.\\d+)?$"`
+	Page     int     `form:"page" binding:"omitempty,min=1, regexp=^\\d+$"`
+	Limit    int     `form:"limit" binding:"omitempty,min=1,max=100, regexp=^\\d+$"`
 }
 
 func (r *SearchRequest) Validate() error {
