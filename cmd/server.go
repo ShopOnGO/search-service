@@ -11,7 +11,7 @@ import (
 func main() {
 	services := app.InitServices()
 
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	var wg sync.WaitGroup
@@ -30,12 +30,12 @@ func main() {
 	// 	grpcServer = app.RunGRPCServer(services, &wg)
 	// }()
 
-	// // 3) Kafka
-	// wg.Add(1)
-	// go func() {
-	// 	defer wg.Done()
-	// 	app.RunKafkaConsumer(ctx, services)
-	// }()
+	// 3) Kafka
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		app.RunKafkaConsumer(ctx, services)
+	}()
 
 	app.WaitForShutdown(cancel)
 

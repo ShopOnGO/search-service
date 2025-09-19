@@ -9,11 +9,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/segmentio/kafka-go"
 
+	"github.com/ShopOnGO/ShopOnGO/pkg/kafkaService"
 	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 
 	"github.com/ShopOnGO/search-service/configs"
 	"github.com/ShopOnGO/search-service/internal/elastic"
+	"github.com/ShopOnGO/search-service/internal/search"
 	"github.com/ShopOnGO/search-service/migrations"
 	"github.com/ShopOnGO/search-service/pkg/db"
 
@@ -28,7 +31,8 @@ var (
 
 type App struct {
 	conf          *configs.Config
-	// kafkaConsumer *kafkaService.KafkaService
+	kafkaConsumer *kafkaService.KafkaService
+	searchSvc     *search.SearchService
 }
 
 func InitServices() *App {
@@ -38,24 +42,30 @@ func InitServices() *App {
 
 	elastic.Init(conf)
 
-	// kafkaConsumer := kafkaService.NewConsumer(
-	// 	conf.Kafka.Brokers,
-	// 	conf.Kafka.Topic,
-	// 	conf.Kafka.GroupID,
-	// 	conf.Kafka.ClientID,
-	// )
+	searchSvc := search.NewSearchService()
+
+	kafkaConsumer := kafkaService.NewConsumer(
+		conf.Kafka.Brokers,
+		conf.Kafka.Topic,
+		conf.Kafka.GroupID,
+		conf.Kafka.ClientID,
+	)
 
 	return &App{
 		conf: conf,
-		// kafkaConsumer: kafkaConsumer,
+		kafkaConsumer: kafkaConsumer,
+		searchSvc: searchSvc,
 	}
 }
 
 func RunHTTPServer(app *App) {
 	router := gin.Default()
 
-	// // Старая REST реализация (если нужно)
-	// product.NewSearchHandler(router) // можно удалить после полной миграции
+	searchHandlerDeps := search.SearchHandlerDeps{
+		SearchSvc: app.searchSvc,
+	}
+
+	search.NewSearchHandler(router, searchHandlerDeps)
 
 	// GraphQL server
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
@@ -86,11 +96,9 @@ func RunHTTPServer(app *App) {
 // 		logger.Infof("TCP listener error: %v\n", err)
 // 		return nil
 // 	}
-
 // 	grpcServer := grpc.NewServer()
 // 	pb.RegisterReviewServiceServer(grpcServer, review.NewGrpcReviewService(app.reviewSvc))
 // 	pb.RegisterQuestionServiceServer(grpcServer, question.NewGrpcQuestionService(app.questionSvc))
-
 // 	logger.Info("gRPC server listening on :50052")
 // 	if err := grpcServer.Serve(listener); err != nil {
 // 		logger.Infof("gRPC server error: %v\n", err)
@@ -98,20 +106,18 @@ func RunHTTPServer(app *App) {
 // 	return grpcServer
 // }
 
-// func RunKafkaConsumer(ctx context.Context, app *App) {
-// 	defer app.kafkaConsumer.Close()
 
-// 	dispatcher := kafkaService.NewDispatcher()
-// 	dispatcher.Register("review", func(msg kafka.Message) error {
-// 		return review.HandleReviewEvent(msg.Value, string(msg.Key), app.reviewSvc)
-// 	})
-// 	dispatcher.Register("question", func(msg kafka.Message) error {
-// 		return question.HandleQuestionEvent(msg.Value, string(msg.Key), app.questionSvc)
-// 	})
+func RunKafkaConsumer(ctx context.Context, app *App) {
+	defer app.kafkaConsumer.Close()
 
-// 	logger.Info("Kafka consumer started")
-// 	app.kafkaConsumer.Consume(ctx, dispatcher.Dispatch)
-// }
+	dispatcher := kafkaService.NewDispatcher()
+	dispatcher.Register("product-created", func(msg kafka.Message) error {
+		return search.HandleProductEvent(msg.Value, string(msg.Key), app.searchSvc)
+	})
+
+	logger.Info("Kafka consumer started")
+	app.kafkaConsumer.Consume(ctx, dispatcher.Dispatch)
+}
 
 func WaitForShutdown(cancel context.CancelFunc) {
 	sigs := make(chan os.Signal, 1)

@@ -1,4 +1,4 @@
-package product
+package search
 
 type ESVariant struct {
 	VariantID string   `json:"variant_id"`

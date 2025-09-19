@@ -2,7 +2,8 @@ package configs
 
 import (
 	"os"
-	
+	"strings"
+
 	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 	"github.com/joho/godotenv"
 )
@@ -35,8 +36,8 @@ func LoadConfig() *Config {
 		logger.Error("Error loading .env file, using default config", err.Error())
 	}
 
-	// brokersRaw := os.Getenv("KAFKA_BROKERS")
-	// brokers := strings.Split(brokersRaw, ",")
+	brokersRaw := os.Getenv("KAFKA_BROKERS")
+	brokers := strings.Split(brokersRaw, ",")
 
 	return &Config{
 		Db: DbConfig{
@@ -46,11 +47,11 @@ func LoadConfig() *Config {
 			URL: os.Getenv("ELASTIC_URL"),
 			Index: os.Getenv("ELASTIC_INDEX"),
 		},
-		// Kafka: KafkaConfig{
-		// 	Brokers: brokers,
-		// 	Topic:   os.Getenv("KAFKA_TOPIC"),
-		// 	GroupID: os.Getenv("KAFKA_GROUP_ID"),
-		// 	ClientID: os.Getenv("KAFKA_CLIENT_ID"),
-		// },
+		Kafka: KafkaConfig{
+			Brokers: brokers,
+			Topic:   os.Getenv("KAFKA_TOPIC"),
+			GroupID: os.Getenv("KAFKA_GROUP_ID"),
+			ClientID: os.Getenv("KAFKA_CLIENT_ID"),
+		},
 	}
 }

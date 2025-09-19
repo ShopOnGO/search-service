@@ -4,13 +4,13 @@ import (
 	"strconv"
 
 	"github.com/ShopOnGO/search-service/internal/graph/model"
-	"github.com/ShopOnGO/search-service/internal/product"
+	"github.com/ShopOnGO/search-service/internal/search"
 )
 
 // Resolver root for gqlgen.
 type Resolver struct{}
 
-func ConvertESProductToModel(p *product.ESProduct) *model.Product {
+func ConvertESProductToModel(p *search.ESProduct) *model.Product {
 	// Description pointer
 	var descPtr *string
 	if p.Description != "" {
