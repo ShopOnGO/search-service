@@ -1,8 +1,6 @@
 package graph
 
 import (
-	"strconv"
-
 	"github.com/ShopOnGO/search-service/internal/graph/model"
 	"github.com/ShopOnGO/search-service/internal/search"
 )
@@ -48,7 +46,7 @@ func ConvertESProductToModel(p *search.ESProduct) *model.Product {
 	}
 
 	// ID в model.Product — string
-	idStr := strconv.FormatUint(uint64(p.ID), 10)
+	idStr := p.ID
 
 	return &model.Product{
 		ID:          idStr,
