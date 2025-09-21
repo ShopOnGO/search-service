@@ -51,8 +51,12 @@ type ComplexityRoot struct {
 		CategoryID  func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		ImageUrls   func(childComplexity int) int
+		IsActive    func(childComplexity int) int
+		Material    func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Variants    func(childComplexity int) int
+		VideoUrls   func(childComplexity int) int
 	}
 
 	Query struct {
@@ -68,14 +72,23 @@ type ComplexityRoot struct {
 	}
 
 	Variant struct {
-		Colors    func(childComplexity int) int
-		Material  func(childComplexity int) int
-		Price     func(childComplexity int) int
-		Rating    func(childComplexity int) int
-		Sizes     func(childComplexity int) int
-		Sku       func(childComplexity int) int
-		Stock     func(childComplexity int) int
-		VariantID func(childComplexity int) int
+		Barcode       func(childComplexity int) int
+		Colors        func(childComplexity int) int
+		Dimensions    func(childComplexity int) int
+		Discount      func(childComplexity int) int
+		ImageUrls     func(childComplexity int) int
+		IsActive      func(childComplexity int) int
+		Material      func(childComplexity int) int
+		MinOrder      func(childComplexity int) int
+		Price         func(childComplexity int) int
+		Rating        func(childComplexity int) int
+		RatingSum     func(childComplexity int) int
+		ReservedStock func(childComplexity int) int
+		ReviewCount   func(childComplexity int) int
+		Sizes         func(childComplexity int) int
+		Sku           func(childComplexity int) int
+		Stock         func(childComplexity int) int
+		VariantID     func(childComplexity int) int
 	}
 }
 
@@ -126,6 +139,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Product.ID(childComplexity), true
+	case "Product.image_urls":
+		if e.complexity.Product.ImageUrls == nil {
+			break
+		}
+
+		return e.complexity.Product.ImageUrls(childComplexity), true
+	case "Product.is_active":
+		if e.complexity.Product.IsActive == nil {
+			break
+		}
+
+		return e.complexity.Product.IsActive(childComplexity), true
+	case "Product.material":
+		if e.complexity.Product.Material == nil {
+			break
+		}
+
+		return e.complexity.Product.Material(childComplexity), true
 	case "Product.name":
 		if e.complexity.Product.Name == nil {
 			break
@@ -138,6 +169,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Product.Variants(childComplexity), true
+	case "Product.video_urls":
+		if e.complexity.Product.VideoUrls == nil {
+			break
+		}
+
+		return e.complexity.Product.VideoUrls(childComplexity), true
 
 	case "Query.searchProducts":
 		if e.complexity.Query.SearchProducts == nil {
@@ -182,18 +219,54 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.SearchResponse.Total(childComplexity), true
 
+	case "Variant.barcode":
+		if e.complexity.Variant.Barcode == nil {
+			break
+		}
+
+		return e.complexity.Variant.Barcode(childComplexity), true
 	case "Variant.colors":
 		if e.complexity.Variant.Colors == nil {
 			break
 		}
 
 		return e.complexity.Variant.Colors(childComplexity), true
+	case "Variant.dimensions":
+		if e.complexity.Variant.Dimensions == nil {
+			break
+		}
+
+		return e.complexity.Variant.Dimensions(childComplexity), true
+	case "Variant.discount":
+		if e.complexity.Variant.Discount == nil {
+			break
+		}
+
+		return e.complexity.Variant.Discount(childComplexity), true
+	case "Variant.image_urls":
+		if e.complexity.Variant.ImageUrls == nil {
+			break
+		}
+
+		return e.complexity.Variant.ImageUrls(childComplexity), true
+	case "Variant.is_active":
+		if e.complexity.Variant.IsActive == nil {
+			break
+		}
+
+		return e.complexity.Variant.IsActive(childComplexity), true
 	case "Variant.material":
 		if e.complexity.Variant.Material == nil {
 			break
 		}
 
 		return e.complexity.Variant.Material(childComplexity), true
+	case "Variant.min_order":
+		if e.complexity.Variant.MinOrder == nil {
+			break
+		}
+
+		return e.complexity.Variant.MinOrder(childComplexity), true
 	case "Variant.price":
 		if e.complexity.Variant.Price == nil {
 			break
@@ -206,6 +279,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Variant.Rating(childComplexity), true
+	case "Variant.rating_sum":
+		if e.complexity.Variant.RatingSum == nil {
+			break
+		}
+
+		return e.complexity.Variant.RatingSum(childComplexity), true
+	case "Variant.reserved_stock":
+		if e.complexity.Variant.ReservedStock == nil {
+			break
+		}
+
+		return e.complexity.Variant.ReservedStock(childComplexity), true
+	case "Variant.review_count":
+		if e.complexity.Variant.ReviewCount == nil {
+			break
+		}
+
+		return e.complexity.Variant.ReviewCount(childComplexity), true
 	case "Variant.sizes":
 		if e.complexity.Variant.Sizes == nil {
 			break
@@ -425,7 +516,7 @@ func (ec *executionContext) _Product_id(ctx context.Context, field graphql.Colle
 			return obj.ID, nil
 		},
 		nil,
-		ec.marshalNID2string,
+		ec.marshalNInt2int32,
 		true,
 		true,
 	)
@@ -438,7 +529,7 @@ func (ec *executionContext) fieldContext_Product_id(_ context.Context, field gra
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -490,6 +581,35 @@ func (ec *executionContext) _Product_description(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_Product_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_material(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Product_material,
+		func(ctx context.Context) (any, error) {
+			return obj.Material, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Product_material(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Product",
 		Field:      field,
@@ -560,6 +680,93 @@ func (ec *executionContext) fieldContext_Product_brand_id(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_is_active(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Product_is_active,
+		func(ctx context.Context) (any, error) {
+			return obj.IsActive, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Product_is_active(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_image_urls(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Product_image_urls,
+		func(ctx context.Context) (any, error) {
+			return obj.ImageUrls, nil
+		},
+		nil,
+		ec.marshalNString2ᚕstringᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Product_image_urls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_video_urls(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Product_video_urls,
+		func(ctx context.Context) (any, error) {
+			return obj.VideoUrls, nil
+		},
+		nil,
+		ec.marshalNString2ᚕstringᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Product_video_urls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Product_variants(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -590,16 +797,34 @@ func (ec *executionContext) fieldContext_Product_variants(_ context.Context, fie
 				return ec.fieldContext_Variant_sku(ctx, field)
 			case "price":
 				return ec.fieldContext_Variant_price(ctx, field)
+			case "discount":
+				return ec.fieldContext_Variant_discount(ctx, field)
+			case "stock":
+				return ec.fieldContext_Variant_stock(ctx, field)
+			case "reserved_stock":
+				return ec.fieldContext_Variant_reserved_stock(ctx, field)
+			case "rating":
+				return ec.fieldContext_Variant_rating(ctx, field)
+			case "review_count":
+				return ec.fieldContext_Variant_review_count(ctx, field)
+			case "rating_sum":
+				return ec.fieldContext_Variant_rating_sum(ctx, field)
 			case "sizes":
 				return ec.fieldContext_Variant_sizes(ctx, field)
 			case "colors":
 				return ec.fieldContext_Variant_colors(ctx, field)
 			case "material":
 				return ec.fieldContext_Variant_material(ctx, field)
-			case "stock":
-				return ec.fieldContext_Variant_stock(ctx, field)
-			case "rating":
-				return ec.fieldContext_Variant_rating(ctx, field)
+			case "barcode":
+				return ec.fieldContext_Variant_barcode(ctx, field)
+			case "is_active":
+				return ec.fieldContext_Variant_is_active(ctx, field)
+			case "image_urls":
+				return ec.fieldContext_Variant_image_urls(ctx, field)
+			case "min_order":
+				return ec.fieldContext_Variant_min_order(ctx, field)
+			case "dimensions":
+				return ec.fieldContext_Variant_dimensions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Variant", field.Name)
 		},
@@ -798,10 +1023,18 @@ func (ec *executionContext) fieldContext_SearchResponse_products(_ context.Conte
 				return ec.fieldContext_Product_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Product_description(ctx, field)
+			case "material":
+				return ec.fieldContext_Product_material(ctx, field)
 			case "category_id":
 				return ec.fieldContext_Product_category_id(ctx, field)
 			case "brand_id":
 				return ec.fieldContext_Product_brand_id(ctx, field)
+			case "is_active":
+				return ec.fieldContext_Product_is_active(ctx, field)
+			case "image_urls":
+				return ec.fieldContext_Product_image_urls(ctx, field)
+			case "video_urls":
+				return ec.fieldContext_Product_video_urls(ctx, field)
 			case "variants":
 				return ec.fieldContext_Product_variants(ctx, field)
 			}
@@ -937,7 +1170,7 @@ func (ec *executionContext) _Variant_variant_id(ctx context.Context, field graph
 			return obj.VariantID, nil
 		},
 		nil,
-		ec.marshalNID2string,
+		ec.marshalNInt2int32,
 		true,
 		true,
 	)
@@ -950,7 +1183,7 @@ func (ec *executionContext) fieldContext_Variant_variant_id(_ context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1014,6 +1247,180 @@ func (ec *executionContext) fieldContext_Variant_price(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Variant_discount(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_discount,
+		func(ctx context.Context) (any, error) {
+			return obj.Discount, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_discount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_stock(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_stock,
+		func(ctx context.Context) (any, error) {
+			return obj.Stock, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_stock(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_reserved_stock(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_reserved_stock,
+		func(ctx context.Context) (any, error) {
+			return obj.ReservedStock, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_reserved_stock(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_rating(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_rating,
+		func(ctx context.Context) (any, error) {
+			return obj.Rating, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_rating(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_review_count(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_review_count,
+		func(ctx context.Context) (any, error) {
+			return obj.ReviewCount, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_review_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_rating_sum(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_rating_sum,
+		func(ctx context.Context) (any, error) {
+			return obj.RatingSum, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_rating_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Variant_sizes(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1024,7 +1431,7 @@ func (ec *executionContext) _Variant_sizes(ctx context.Context, field graphql.Co
 			return obj.Sizes, nil
 		},
 		nil,
-		ec.marshalNInt2ᚕint32ᚄ,
+		ec.marshalNString2string,
 		true,
 		true,
 	)
@@ -1037,7 +1444,7 @@ func (ec *executionContext) fieldContext_Variant_sizes(_ context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1053,7 +1460,7 @@ func (ec *executionContext) _Variant_colors(ctx context.Context, field graphql.C
 			return obj.Colors, nil
 		},
 		nil,
-		ec.marshalNString2ᚕstringᚄ,
+		ec.marshalNString2string,
 		true,
 		true,
 	)
@@ -1101,14 +1508,101 @@ func (ec *executionContext) fieldContext_Variant_material(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Variant_stock(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+func (ec *executionContext) _Variant_barcode(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Variant_stock,
+		ec.fieldContext_Variant_barcode,
 		func(ctx context.Context) (any, error) {
-			return obj.Stock, nil
+			return obj.Barcode, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_barcode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_is_active(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_is_active,
+		func(ctx context.Context) (any, error) {
+			return obj.IsActive, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_is_active(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_image_urls(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_image_urls,
+		func(ctx context.Context) (any, error) {
+			return obj.ImageUrls, nil
+		},
+		nil,
+		ec.marshalNString2ᚕstringᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Variant_image_urls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Variant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Variant_min_order(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Variant_min_order,
+		func(ctx context.Context) (any, error) {
+			return obj.MinOrder, nil
 		},
 		nil,
 		ec.marshalNInt2int32,
@@ -1117,7 +1611,7 @@ func (ec *executionContext) _Variant_stock(ctx context.Context, field graphql.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_Variant_stock(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Variant_min_order(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Variant",
 		Field:      field,
@@ -1130,30 +1624,30 @@ func (ec *executionContext) fieldContext_Variant_stock(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Variant_rating(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
+func (ec *executionContext) _Variant_dimensions(ctx context.Context, field graphql.CollectedField, obj *model.Variant) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Variant_rating,
+		ec.fieldContext_Variant_dimensions,
 		func(ctx context.Context) (any, error) {
-			return obj.Rating, nil
+			return obj.Dimensions, nil
 		},
 		nil,
-		ec.marshalNFloat2float64,
+		ec.marshalOString2ᚖstring,
 		true,
-		true,
+		false,
 	)
 }
 
-func (ec *executionContext) fieldContext_Variant_rating(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Variant_dimensions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Variant",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2612,7 +3106,7 @@ func (ec *executionContext) unmarshalInputSearchInput(ctx context.Context, obj a
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "minPrice", "maxPrice", "categoryID", "brandID", "page", "limit"}
+	fieldsInOrder := [...]string{"name", "productID", "variantID", "sku", "material", "color", "size", "barcode", "dimensions", "minPrice", "maxPrice", "stock", "categoryID", "brandID", "isActive", "page", "limit"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2626,6 +3120,62 @@ func (ec *executionContext) unmarshalInputSearchInput(ctx context.Context, obj a
 				return it, err
 			}
 			it.Name = data
+		case "productID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productID"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProductID = data
+		case "variantID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("variantID"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VariantID = data
+		case "sku":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sku"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sku = data
+		case "material":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("material"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Material = data
+		case "color":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("color"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Color = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
+		case "barcode":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("barcode"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Barcode = data
+		case "dimensions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dimensions"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Dimensions = data
 		case "minPrice":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPrice"))
 			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
@@ -2640,6 +3190,13 @@ func (ec *executionContext) unmarshalInputSearchInput(ctx context.Context, obj a
 				return it, err
 			}
 			it.MaxPrice = data
+		case "stock":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stock"))
+			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Stock = data
 		case "categoryID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
@@ -2654,6 +3211,13 @@ func (ec *executionContext) unmarshalInputSearchInput(ctx context.Context, obj a
 				return it, err
 			}
 			it.BrandID = data
+		case "isActive":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isActive"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsActive = data
 		case "page":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
 			data, err := ec.unmarshalOInt2ᚖint32(ctx, v)
@@ -2705,6 +3269,8 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "description":
 			out.Values[i] = ec._Product_description(ctx, field, obj)
+		case "material":
+			out.Values[i] = ec._Product_material(ctx, field, obj)
 		case "category_id":
 			out.Values[i] = ec._Product_category_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2712,6 +3278,21 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "brand_id":
 			out.Values[i] = ec._Product_brand_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "is_active":
+			out.Values[i] = ec._Product_is_active(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "image_urls":
+			out.Values[i] = ec._Product_image_urls(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "video_urls":
+			out.Values[i] = ec._Product_video_urls(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2900,6 +3481,36 @@ func (ec *executionContext) _Variant(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "discount":
+			out.Values[i] = ec._Variant_discount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "stock":
+			out.Values[i] = ec._Variant_stock(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reserved_stock":
+			out.Values[i] = ec._Variant_reserved_stock(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rating":
+			out.Values[i] = ec._Variant_rating(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "review_count":
+			out.Values[i] = ec._Variant_review_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rating_sum":
+			out.Values[i] = ec._Variant_rating_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "sizes":
 			out.Values[i] = ec._Variant_sizes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2912,16 +3523,25 @@ func (ec *executionContext) _Variant(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "material":
 			out.Values[i] = ec._Variant_material(ctx, field, obj)
-		case "stock":
-			out.Values[i] = ec._Variant_stock(ctx, field, obj)
+		case "barcode":
+			out.Values[i] = ec._Variant_barcode(ctx, field, obj)
+		case "is_active":
+			out.Values[i] = ec._Variant_is_active(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "rating":
-			out.Values[i] = ec._Variant_rating(ctx, field, obj)
+		case "image_urls":
+			out.Values[i] = ec._Variant_image_urls(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "min_order":
+			out.Values[i] = ec._Variant_min_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "dimensions":
+			out.Values[i] = ec._Variant_dimensions(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3312,22 +3932,6 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	_ = sel
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
 	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3342,36 +3946,6 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNInt2ᚕint32ᚄ(ctx context.Context, v any) ([]int32, error) {
-	var vSlice []any
-	vSlice = graphql.CoerceList(v)
-	var err error
-	res := make([]int32, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNInt2int32(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNInt2ᚕint32ᚄ(ctx context.Context, sel ast.SelectionSet, v []int32) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNInt2int32(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋShopOnGOᚋsearchᚑserviceᚋinternalᚋgraphᚋmodelᚐProductᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Product) graphql.Marshaler {

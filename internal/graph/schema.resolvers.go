@@ -48,59 +48,73 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 		})
 	}
 
-	// // Фильтр по конкретному id продукта
-	// if input.ProductID != nil && *input.ProductID != "" {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"id": *input.ProductID,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному id продукта
+	if input.ProductID != nil && *input.ProductID > 0 {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"term": map[string]interface{}{
+				"id": *input.ProductID,
+			},
+		})
+	}
 
-	// // Фильтр по конкретному id варианта продукта
-	// if input.VariantID != nil && *input.VariantID != "" {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"variants.variant_id": *input.VariantID,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному id варианта продукта
+	if input.VariantID != nil && *input.VariantID > 0 {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"term": map[string]interface{}{
+				"variants.variant_id": *input.VariantID,
+			},
+		})
+	}
 
-	// // Фильтр по конкретному sku варианта продукта
-	// if input.SKU != nil && *input.SKU != "" {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"variants.sku": *input.SKU,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному sku варианта продукта
+	if input.Sku != nil && *input.Sku != "" {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"term": map[string]interface{}{
+				"variants.sku": *input.Sku,
+			},
+		})
+	}
 
-	// // Фильтр по конкретному material варианта продукта
-	// if input.Material != nil && *input.Material != "" {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"variants.material": *input.Material,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному material варианта продукта
+	if input.Material != nil && *input.Material != "" {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"term": map[string]interface{}{
+				"variants.material": *input.Material,
+			},
+		})
+	}
 
-	// // Фильтр по конкретному color варианта продукта
-	// if input.Color != nil && *input.Color != "" {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"variants.colors": *input.Color,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному color варианта продукта
+	if input.Color != nil && *input.Color != "" {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"nested": map[string]interface{}{
+				"path": "variants",
+				"query": map[string]interface{}{
+					"wildcard": map[string]interface{}{
+						"variants.colors": map[string]interface{}{
+							"value": fmt.Sprintf("*%s*", *input.Color),
+						},
+					},
+				},
+			},
+		})
+	}
 
-	// // Фильтр по конкретному size варианта продукта
-	// if input.Size != nil && *input.Size != 0 {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"variants.sizes": *input.Size,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному size варианта продукта
+	if input.Size != nil && *input.Size != "" {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"nested": map[string]interface{}{
+				"path": "variants",
+				"query": map[string]interface{}{
+					"wildcard": map[string]interface{}{
+						"variants.sizes": map[string]interface{}{
+							"value": fmt.Sprintf("*%s*", *input.Size),
+						},
+					},
+				},
+			},
+		})
+	}
 
 	// // Фильтр по конкретному rating варианта продукта
 	// if input.Rating != nil && *input.Rating != 0 {
@@ -111,14 +125,21 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 	// 	})
 	// }
 
-	// // Фильтр по конкретному stock варианта продукта
-	// if input.Stock != nil && *input.Stock != 0 {
-	// 	mustClauses = append(mustClauses, map[string]interface{}{
-	// 		"term": map[string]interface{}{
-	// 			"variants.stock": *input.Stock,
-	// 		},
-	// 	})
-	// }
+	// Фильтр по конкретному stock варианта продукта
+	if input.Stock != nil && *input.Stock > 0 {
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"nested": map[string]interface{}{
+				"path": "variants",
+				"query": map[string]interface{}{
+					"range": map[string]interface{}{
+						"variants.stock": map[string]interface{}{
+							"gte": *input.Stock,
+						},
+					},
+				},
+			},
+		})
+	}
 
 	// Фильтр по category_id
 	if input.CategoryID != nil {

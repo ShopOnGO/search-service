@@ -1,23 +1,39 @@
+# Тип для варианта продукта
 type Variant {
-  variant_id: ID!
+  variant_id: Int!
   sku: String!
   price: Float!
-  sizes: [Int!]!
-  colors: [String!]!
-  material: String
+  discount: Float!
   stock: Int!
+  reserved_stock: Int!
   rating: Float!
+  review_count: Int!
+  rating_sum: Int!
+  sizes: String!
+  colors: String!
+  material: String
+  barcode: String
+  is_active: Boolean!
+  image_urls: [String!]!
+  min_order: Int!
+  dimensions: String
 }
 
+# Тип продукта
 type Product {
-  id: ID!
+  id: Int!
   name: String!
   description: String
+  material: String
   category_id: Int!
   brand_id: Int!
+  is_active: Boolean!
+  image_urls: [String!]!
+  video_urls: [String!]!
   variants: [Variant!]!
 }
 
+# Ответ поиска
 type SearchResponse {
   products: [Product!]!
   total: Int!
@@ -26,16 +42,32 @@ type SearchResponse {
   pages: Int!
 }
 
+# Входные параметры поиска
 input SearchInput {
   name: String
+  productID: Int
+  variantID: Int
+  sku: String
+  material: String
+  color: String
+  size: String
+  barcode: String
+  dimensions: String
+
   minPrice: Float
   maxPrice: Float
+
+  stock: Int
+
   categoryID: Int
   brandID: Int
+  isActive: Boolean
+
   page: Int
   limit: Int
 }
 
+# Запросы
 type Query {
   searchProducts(input: SearchInput!): SearchResponse!
 }

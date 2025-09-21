@@ -27,33 +27,38 @@ func (s *SearchService) AddProductToElasticSearch(product ProductCreatedEvent) e
 
 	// Формируем документ для Elasticsearch
 	doc := map[string]interface{}{
-		"id":          fmt.Sprintf("%d", product.ProductID), // ← keyword в маппинге
+		"id":          product.ProductID,
 		"name":        product.Name,
 		"description": product.Description,
 		"category_id": product.CategoryID,
 		"brand_id":    product.BrandID,
 		"image_urls":  product.ImageKeys,
 		"video_urls":  product.VideoKeys,
-
-		// Варианты — создаём хотя бы один по умолчанию
-		"variants": []map[string]interface{}{
-			{
-				"variant_id":   fmt.Sprintf("variant-%d-default", product.ProductID),
-				"sku":          fmt.Sprintf("SKU-%d", product.ProductID),
-				"price":        float64(product.Price),
-				"discount":     float64(product.Discount),
-				"stock":        999,
-				"min_order":    1,
-				"sizes":        []int{},
-				"colors":       []string{},
-				"material":     "",
-				"rating":       0.0,
-				"review_count": 0,
-				"rating_sum":   0,
-				"dimensions":   "",
-			},
-		},
+		"material":    product.Material,
+    	"is_active":   product.IsActive,
 	}
+
+	var variants []map[string]interface{}
+    for _, v := range product.Variants {
+        variants = append(variants, map[string]interface{}{
+            "variant_id":   v.VariantID,
+            "sku":          v.SKU,
+            "price":        v.Price,
+            "discount":     v.Discount,
+            // "final_price":  v.Price - v.Discount,
+            "sizes":        v.Sizes,
+            "colors":       v.Colors,
+            "stock":        v.Stock,
+            "rating":       v.Rating,
+            "review_count": v.ReviewCount,
+            "barcode":      v.Barcode,
+            "dimensions":   v.Dimensions,
+            "image_urls":   v.ImageURLs,
+            "min_order":    v.MinOrder,
+            "is_active":    v.IsActive,
+        })
+    }
+    doc["variants"] = variants
 
 	// Сериализуем документ в JSON
 	body, err := json.Marshal(doc)
@@ -67,7 +72,7 @@ func (s *SearchService) AddProductToElasticSearch(product ProductCreatedEvent) e
 		Index:      elastic.Index,
 		DocumentID: fmt.Sprintf("%d", product.ProductID), // ← _id документа
 		Body:       bytes.NewReader(body),
-		Refresh:    "true", // ← опционально: сразу видно в поиске (для dev) не надо Refresh: "true" в продакшене
+		Refresh:    "true", // для dev — в продакшене убери или сделай опционально
 	}
 
 	res, err := req.Do(context.Background(), elastic.ESClient)

@@ -15,45 +15,36 @@ func ConvertESProductToModel(p *search.ESProduct) *model.Product {
 		descPtr = &p.Description
 	}
 
-	// Category/Brand cast
-	cat := int32(p.CategoryID)
-	brand := int32(p.BrandID)
-
 	// Variants
 	var variants []*model.Variant
 	for _, v := range p.Variants {
-		// sizes convert []int -> []int32
-		sizes32 := make([]int32, 0, len(v.Sizes))
-		for _, s := range v.Sizes {
-			sizes32 = append(sizes32, int32(s))
-		}
-
-		var matPtr *string
-		if v.Material != "" {
-			matPtr = &v.Material
-		}
-
 		variants = append(variants, &model.Variant{
-			VariantID: v.VariantID,
-			Sku:       v.SKU,
-			Price:     v.Price,
-			Sizes:     sizes32,
-			Colors:    v.Colors,
-			Material:  matPtr,
-			Stock:     int32(v.Stock),
-			Rating:    v.Rating,
+			VariantID:   int32(v.VariantID),
+			Sku:         v.SKU,
+			Price:       v.Price,
+			Discount:    v.Discount,
+			// FinalPrice:  v.Price - v.Discount,
+			Sizes:       v.Sizes,
+			Colors:      v.Colors,
+			Stock:       int32(v.Stock),
+			Rating:      v.Rating,
+			ReviewCount: int32(v.ReviewCount),
+			Barcode:     &v.Barcode,
+			Dimensions:  &v.Dimensions,
+			MinOrder:    int32(v.MinOrder),
+			IsActive:    v.IsActive,
 		})
 	}
 
-	// ID в model.Product — string
-	idStr := p.ID
 
 	return &model.Product{
-		ID:          idStr,
+		ID:          int32(p.ID),
 		Name:        p.Name,
 		Description: descPtr,
-		CategoryID:  cat,
-		BrandID:     brand,
+		Material:    &p.Material,
+		CategoryID:  int32(p.CategoryID),
+		BrandID:     int32(p.BrandID),
+		IsActive:    p.IsActive,
 		Variants:    variants,
 	}
 }

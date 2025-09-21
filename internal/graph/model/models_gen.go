@@ -3,11 +3,15 @@
 package model
 
 type Product struct {
-	ID          string     `json:"id"`
+	ID          int32      `json:"id"`
 	Name        string     `json:"name"`
 	Description *string    `json:"description,omitempty"`
+	Material    *string    `json:"material,omitempty"`
 	CategoryID  int32      `json:"category_id"`
 	BrandID     int32      `json:"brand_id"`
+	IsActive    bool       `json:"is_active"`
+	ImageUrls   []string   `json:"image_urls"`
+	VideoUrls   []string   `json:"video_urls"`
 	Variants    []*Variant `json:"variants"`
 }
 
@@ -16,10 +20,20 @@ type Query struct {
 
 type SearchInput struct {
 	Name       *string  `json:"name,omitempty"`
+	ProductID  *int32   `json:"productID,omitempty"`
+	VariantID  *int32   `json:"variantID,omitempty"`
+	Sku        *string  `json:"sku,omitempty"`
+	Material   *string  `json:"material,omitempty"`
+	Color      *string  `json:"color,omitempty"`
+	Size       *string  `json:"size,omitempty"`
+	Barcode    *string  `json:"barcode,omitempty"`
+	Dimensions *string  `json:"dimensions,omitempty"`
 	MinPrice   *float64 `json:"minPrice,omitempty"`
 	MaxPrice   *float64 `json:"maxPrice,omitempty"`
+	Stock      *int32   `json:"stock,omitempty"`
 	CategoryID *int32   `json:"categoryID,omitempty"`
 	BrandID    *int32   `json:"brandID,omitempty"`
+	IsActive   *bool    `json:"isActive,omitempty"`
 	Page       *int32   `json:"page,omitempty"`
 	Limit      *int32   `json:"limit,omitempty"`
 }
@@ -33,12 +47,21 @@ type SearchResponse struct {
 }
 
 type Variant struct {
-	VariantID string   `json:"variant_id"`
-	Sku       string   `json:"sku"`
-	Price     float64  `json:"price"`
-	Sizes     []int32  `json:"sizes"`
-	Colors    []string `json:"colors"`
-	Material  *string  `json:"material,omitempty"`
-	Stock     int32    `json:"stock"`
-	Rating    float64  `json:"rating"`
+	VariantID     int32    `json:"variant_id"`
+	Sku           string   `json:"sku"`
+	Price         float64  `json:"price"`
+	Discount      float64  `json:"discount"`
+	Stock         int32    `json:"stock"`
+	ReservedStock int32    `json:"reserved_stock"`
+	Rating        float64  `json:"rating"`
+	ReviewCount   int32    `json:"review_count"`
+	RatingSum     int32    `json:"rating_sum"`
+	Sizes         string   `json:"sizes"`
+	Colors        string   `json:"colors"`
+	Material      *string  `json:"material,omitempty"`
+	Barcode       *string  `json:"barcode,omitempty"`
+	IsActive      bool     `json:"is_active"`
+	ImageUrls     []string `json:"image_urls"`
+	MinOrder      int32    `json:"min_order"`
+	Dimensions    *string  `json:"dimensions,omitempty"`
 }

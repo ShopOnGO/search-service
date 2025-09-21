@@ -6,12 +6,16 @@ type ProductCreatedEvent struct {
 
 	Name        string  	`json:"name"`
 	Description string  	`json:"description"`
-	Price       int64   	`json:"price"`
-	Discount    int64   	`json:"discount"`
+	Material    string      `json:"material"`
+	IsActive    bool        `json:"is_active"`
+	ImageURLs   []string    `json:"image_urls"`
+	VideoURLs   []string    `json:"video_urls"`
 
 	CategoryID  uint    	`json:"category_id"`
 	BrandID     uint    	`json:"brand_id"`
-
+	
 	ImageKeys  	[]string	`json:"image_keys"`
 	VideoKeys  	[]string 	`json:"video_keys"`
+
+	Variants    []ESVariant `json:"variants"`
 }
