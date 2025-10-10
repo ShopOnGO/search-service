@@ -31,7 +31,7 @@ WORKDIR /search
 # Устанавливаем postgresql-client, dos2unix и curl
 RUN apk add --no-cache postgresql-client dos2unix curl
 
-COPY .env /search/.env
+# COPY .env /search/.env
 
 # Копируем бинарный файл из предыдущего этапа
 COPY --from=builder /search/search_service /search/search_service
