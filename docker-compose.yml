@@ -16,6 +16,8 @@ services:
       - ELASTIC_URL=http://elasticsearch:9200
       - ELASTIC_INDEX=products
       - KAFKA_BROKER=kafka:9092
+    env_file:
+      - .env
     depends_on:
       - elasticsearch
     networks:
