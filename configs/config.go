@@ -54,9 +54,9 @@ func LoadConfig() *Config {
 		},
 		Kafka: KafkaConfig{
 			Brokers: brokers,
-			Topic:   os.Getenv("KAFKA_TOPIC"),
-			GroupID: os.Getenv("KAFKA_GROUP_ID"),
-			ClientID: os.Getenv("KAFKA_CLIENT_ID"),
+			Topic:   os.Getenv("KAFKA_SEARCH_TOPIC"),
+			GroupID: os.Getenv("KAFKA_SEARCH_GROUP_ID"),
+			ClientID: os.Getenv("KAFKA_SEARCH_CLIENT_ID"),
 		},
 	}
 }
