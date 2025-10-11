@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
-	"github.com/joho/godotenv"
+	"github.com/ShopOnGO/search-service/configs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,13 +23,9 @@ func CheckForMigrations() error {
 }
 
 func RunMigrations() error {
-	err := godotenv.Load(".env")
-	if err != nil {
-		panic(err)
-	}
-	db, err := gorm.Open(postgres.Open(os.Getenv("DSN")), &gorm.Config{
-		//DisableForeignKeyConstraintWhenMigrating: true, //временно игнорировать миграции в первый раз а потом их добавить
-	})
+	cfg := configs.LoadConfig()
+
+	db, err := gorm.Open(postgres.Open(cfg.Db.Dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
