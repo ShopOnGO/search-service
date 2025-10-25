@@ -31,6 +31,7 @@ func Init(cfg *configs.Config) {
     defer res.Body.Close()
 
     ESClient = client
+	logger.Info("Elasticsearch client from init:", ESClient)
     Index = cfg.Elastic.Index
     logger.Infof("[elastic] connected to %s | index=%s", cfg.Elastic.URL, Index)
 }

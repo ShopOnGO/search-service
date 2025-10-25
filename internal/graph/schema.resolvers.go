@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 	"github.com/ShopOnGO/search-service/internal/elastic"
 	"github.com/ShopOnGO/search-service/internal/graph/model"
 	"github.com/ShopOnGO/search-service/internal/search"
@@ -213,6 +214,7 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 		return nil, fmt.Errorf("query serialization: %w", err)
 	}
 
+	logger.Info("Elasticsearch client from SearchProduct:", elastic.ESClient)
 	res, err := elastic.ESClient.Search(
 		elastic.ESClient.Search.WithIndex(elastic.Index),
 		elastic.ESClient.Search.WithBody(&buf),
