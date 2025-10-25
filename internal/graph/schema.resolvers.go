@@ -42,9 +42,11 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 		mustClauses = append(mustClauses, map[string]interface{}{
 			"multi_match": map[string]interface{}{
 				"query":     *input.Name,
-				"fields":    []string{"name^2", "description"},
+				"fields":    []string{"name^5", "description"},
 				"type":      "best_fields",
 				"fuzziness": "AUTO",
+				"operator":  "and",
+				"analyzer":  "standard",
 			},
 		})
 	}
@@ -70,8 +72,13 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 	// Фильтр по конкретному sku варианта продукта
 	if input.Sku != nil && *input.Sku != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
-			"term": map[string]interface{}{
-				"variants.sku": *input.Sku,
+			"nested": map[string]interface{}{
+				"path": "variants",
+				"query": map[string]interface{}{
+					"term": map[string]interface{}{
+						"variants.sku": *input.Sku,
+					},
+				},
 			},
 		})
 	}
@@ -79,8 +86,8 @@ func (r *queryResolver) SearchProducts(ctx context.Context, input model.SearchIn
 	// Фильтр по конкретному material варианта продукта
 	if input.Material != nil && *input.Material != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
-			"term": map[string]interface{}{
-				"variants.material": *input.Material,
+			"match": map[string]interface{}{
+				"material": *input.Material,
 			},
 		})
 	}

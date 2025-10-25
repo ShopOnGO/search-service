@@ -17,24 +17,34 @@
 
 **Описание:** поиск товаров с фильтрацией и пагинацией.
 
+для генерации файлов go run github.com/99designs/gqlgen generate 
+
 **Входные параметры (`SearchInput`):**
 
-| Поле        | Тип         | Описание |
-|------------|------------|----------|
-| `name`      | String     | Название товара для поиска |
-| `productID` | Int        | ID конкретного товара |
-| `variantID` | Int        | ID варианта товара |
-| `sku`       | String     | SKU варианта товара |
-| `material`  | String     | Материал варианта |
-| `color`     | String     | Цвет варианта |
-| `size`      | String     | Размер варианта |
-| `stock`     | Int        | Минимальный запас на складе |
-| `categoryID`| Int        | ID категории |
-| `brandID`   | Int        | ID бренда |
-| `minPrice`  | Float      | Минимальная цена |
-| `maxPrice`  | Float      | Максимальная цена |
-| `page`      | Int        | Номер страницы (по умолчанию 1) |
-| `limit`     | Int        | Количество элементов на странице (по умолчанию 20, максимум 100) |
+input SearchInput {
+  name: String
+  description: String
+  productID: Int
+  variantID: Int
+  sku: String
+  material: String
+  color: String
+  size: String
+  barcode: String
+  dimensions: String
+
+  minPrice: Float
+  maxPrice: Float
+
+  stock: Int
+
+  categoryID: Int
+  brandID: Int
+  isActive: Boolean
+
+  page: Int
+  limit: Int
+}
 
 ---
 

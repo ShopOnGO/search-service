@@ -45,6 +45,7 @@ type SearchResponse {
 # Входные параметры поиска
 input SearchInput {
   name: String
+  description: String
   productID: Int
   variantID: Int
   sku: String
