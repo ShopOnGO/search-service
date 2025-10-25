@@ -41,7 +41,7 @@ func LoadConfig() *Config {
         logger.Info(".env not found, using environment variables only")
     }
 
-	brokersRaw := os.Getenv("KAFKA_BROKERS")
+	brokersRaw := os.Getenv("KAFKA_SEARCH_BROKERS")
 	brokers := strings.Split(brokersRaw, ",")
 
 	return &Config{
