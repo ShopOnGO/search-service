@@ -15,7 +15,7 @@ services:
       - POSTGRES_PORT=5432
       - ELASTIC_URL=http://elasticsearch:9200
       - ELASTIC_INDEX=products
-      - KAFKA_BROKER=kafka:9092
+      - KAFKA_SEARCH_BROKERS=kafka:9092
     env_file:
       - .env
     depends_on:
