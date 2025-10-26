@@ -19,23 +19,24 @@ type Query struct {
 }
 
 type SearchInput struct {
-	Name       *string  `json:"name,omitempty"`
-	ProductID  *int32   `json:"productID,omitempty"`
-	VariantID  *int32   `json:"variantID,omitempty"`
-	Sku        *string  `json:"sku,omitempty"`
-	Material   *string  `json:"material,omitempty"`
-	Color      *string  `json:"color,omitempty"`
-	Size       *string  `json:"size,omitempty"`
-	Barcode    *string  `json:"barcode,omitempty"`
-	Dimensions *string  `json:"dimensions,omitempty"`
-	MinPrice   *float64 `json:"minPrice,omitempty"`
-	MaxPrice   *float64 `json:"maxPrice,omitempty"`
-	Stock      *int32   `json:"stock,omitempty"`
-	CategoryID *int32   `json:"categoryID,omitempty"`
-	BrandID    *int32   `json:"brandID,omitempty"`
-	IsActive   *bool    `json:"isActive,omitempty"`
-	Page       *int32   `json:"page,omitempty"`
-	Limit      *int32   `json:"limit,omitempty"`
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	ProductID   *int32   `json:"productID,omitempty"`
+	VariantID   *int32   `json:"variantID,omitempty"`
+	Sku         *string  `json:"sku,omitempty"`
+	Material    *string  `json:"material,omitempty"`
+	Color       *string  `json:"color,omitempty"`
+	Size        *string  `json:"size,omitempty"`
+	Barcode     *string  `json:"barcode,omitempty"`
+	Dimensions  *string  `json:"dimensions,omitempty"`
+	MinPrice    *float64 `json:"minPrice,omitempty"`
+	MaxPrice    *float64 `json:"maxPrice,omitempty"`
+	Stock       *int32   `json:"stock,omitempty"`
+	CategoryID  *int32   `json:"categoryID,omitempty"`
+	BrandID     *int32   `json:"brandID,omitempty"`
+	IsActive    *bool    `json:"isActive,omitempty"`
+	Page        *int32   `json:"page,omitempty"`
+	Limit       *int32   `json:"limit,omitempty"`
 }
 
 type SearchResponse struct {
