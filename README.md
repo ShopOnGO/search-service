@@ -17,7 +17,7 @@
 
 **Описание:** поиск товаров с фильтрацией и пагинацией.
 
-для генерации файлов go run github.com/99designs/gqlgen generate 
+для генерации файлов надо зайти в internal и сделать go run github.com/99designs/gqlgen generate 
 
 **Входные параметры (`SearchInput`):**
 
