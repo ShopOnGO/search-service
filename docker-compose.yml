@@ -16,6 +16,8 @@ services:
       - ELASTIC_URL=http://elasticsearch:9200
       - ELASTIC_INDEX=products
       - KAFKA_SEARCH_BROKERS=kafka:9092
+      - SEARCH_SERVICE_LOG_LEVEL=${SEARCH_SERVICE_LOG_LEVEL}
+      - SEARCH_SERVICE_FILE_LOG_LEVEL={SEARCH_SERVICE_FILE_LOG_LEVEL}
     env_file:
       - .env
     depends_on:

@@ -6,7 +6,7 @@ toolchain go1.24.7
 
 require (
 	github.com/99designs/gqlgen v0.17.80
-	github.com/ShopOnGO/ShopOnGO v0.0.0-20250911195722-3eedc8c77faa
+	github.com/ShopOnGO/ShopOnGO v0.0.0-20251029122247-7565929e2f88
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/gin-gonic/gin v1.10.1
 	github.com/joho/godotenv v1.5.1

@@ -4,6 +4,8 @@ github.com/PuerkitoBio/goquery v1.10.3 h1:pFYcNSqHxBD06Fpj/KsbStFRsgRATgnf3LeXiU
 github.com/PuerkitoBio/goquery v1.10.3/go.mod h1:tMUX0zDMHXYlAQk6p35XxQMqMweEKB7iK7iLNd4RH4Y=
 github.com/ShopOnGO/ShopOnGO v0.0.0-20250911195722-3eedc8c77faa h1:XzBeg6jjlS114WN8pFdopnlzfbuO1b9KheaMi1UcJG8=
 github.com/ShopOnGO/ShopOnGO v0.0.0-20250911195722-3eedc8c77faa/go.mod h1:+XUWLw+XMnRVn51UUJ4ssWgRN4tqLL4tIosiLuQZ26E=
+github.com/ShopOnGO/ShopOnGO v0.0.0-20251029122247-7565929e2f88 h1:30HScsTz+5AILZS2+X1L+kBZuxTrSbri1cVbuD6flEs=
+github.com/ShopOnGO/ShopOnGO v0.0.0-20251029122247-7565929e2f88/go.mod h1:+XUWLw+XMnRVn51UUJ4ssWgRN4tqLL4tIosiLuQZ26E=
 github.com/agnivade/levenshtein v1.2.1 h1:EHBY3UOn1gwdy/VbFwgo4cxecRznFk7fKWN1KOX7eoM=
 github.com/agnivade/levenshtein v1.2.1/go.mod h1:QVVI16kDrtSuwcpd0p1+xMC6Z/VfhtCyDIjcwga4/DU=
 github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 h1:bvNMNQO63//z+xNgfBlViaCIJKLlCJ6/fmUseuG0wVQ=

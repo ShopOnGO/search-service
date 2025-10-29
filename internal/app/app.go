@@ -38,6 +38,12 @@ type App struct {
 func InitServices() *App {
 	migrations.CheckForMigrations()
 	conf := configs.LoadConfig()
+
+	consoleLvl := conf.LogLevel
+	fileLvl := conf.FileLogLevel
+	logger.InitLogger(consoleLvl, fileLvl)
+	logger.EnableFileLogging("TailorNado_search-service")
+
 	_ = db.NewDB(conf)
 
 	elastic.Init(conf)
@@ -52,9 +58,9 @@ func InitServices() *App {
 	)
 
 	return &App{
-		conf: conf,
+		conf:          conf,
 		kafkaConsumer: kafkaConsumer,
-		searchSvc: searchSvc,
+		searchSvc:     searchSvc,
 	}
 }
 
@@ -88,7 +94,6 @@ func RunHTTPServer(app *App) {
 	}()
 }
 
-
 // func RunGRPCServer(app *App, wg *sync.WaitGroup) *grpc.Server {
 // 	defer wg.Done()
 // 	listener, err := net.Listen("tcp", ":50052")
@@ -105,7 +110,6 @@ func RunHTTPServer(app *App) {
 // 	}
 // 	return grpcServer
 // }
-
 
 func RunKafkaConsumer(ctx context.Context, app *App) {
 	defer app.kafkaConsumer.Close()
