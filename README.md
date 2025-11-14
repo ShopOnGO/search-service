@@ -21,6 +21,7 @@ Query: `searchProducts`
 
 Входные параметры (`SearchInput`)
 
+```
 query Search($in: SearchInput!) {
   searchProducts(input: $in) {
     total
@@ -46,21 +47,23 @@ query Search($in: SearchInput!) {
     }
   }
 }
+```
 
 
 ---
 
-
+```
 {
   "in": {
     "limit": 10,
     "page": 1
   }
 }
-
+```
 
 
 это просто описание структуры
+```
 {
   "data": {
     "searchProducts": {
@@ -92,7 +95,7 @@ query Search($in: SearchInput!) {
     }
   }
 }
-
+```
 
 🛠️ Запуск
 docker-compose up --build
