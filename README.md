@@ -21,65 +21,43 @@
 
 **Входные параметры (`SearchInput`):**
 
-input SearchInput {
-  name: String
-  description: String
-  productID: Int
-  variantID: Int
-  sku: String
-  material: String
-  color: String
-  size: String
-  barcode: String
-  dimensions: String
-
-  minPrice: Float
-  maxPrice: Float
-
-  stock: Int
-
-  categoryID: Int
-  brandID: Int
-  isActive: Boolean
-
-  page: Int
-  limit: Int
+query Search($in: SearchInput!) {
+  searchProducts(input: $in) {
+    total
+    page
+    limit
+    pages
+    products {
+      id
+      name
+      description
+      material
+      category_id
+      brand_id
+      variants {
+        variant_id
+        sku
+        price
+        sizes
+        colors
+        stock
+        rating
+      }
+    }
+  }
 }
+
 
 ---
 
 ### Пример запроса
 
 ```graphql
-query {
-  searchProducts(input: {
-    name: "футболка",
-    minPrice: 500,
-    maxPrice: 2000,
-    page: 1,
-    limit: 10
-  }) {
-    products {
-      id
-      name
-      description
-      categoryID
-      brandID
-      variants {
-        variantID
-        sku
-        price
-        sizes
-        colors
-        material
-        stock
-        rating
-      }
-    }
-    total
-    page
-    limit
-    pages
+
+{
+  "in": {
+    "limit": 10,
+    "page": 1
   }
 }
 
