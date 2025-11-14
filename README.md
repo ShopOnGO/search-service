@@ -13,13 +13,13 @@
 
 ## 📡 GraphQL API
 
-### Query: `searchProducts`
+Query: `searchProducts`
 
-**Описание:** поиск товаров с фильтрацией и пагинацией.
+Описание: поиск товаров с фильтрацией и пагинацией.
 
 для генерации файлов надо зайти в internal и сделать go run github.com/99designs/gqlgen generate 
 
-**Входные параметры (`SearchInput`):**
+Входные параметры (`SearchInput`)
 
 query Search($in: SearchInput!) {
   searchProducts(input: $in) {
@@ -50,9 +50,6 @@ query Search($in: SearchInput!) {
 
 ---
 
-### Пример запроса
-
-```graphql
 
 {
   "in": {
@@ -62,6 +59,8 @@ query Search($in: SearchInput!) {
 }
 
 
+
+это просто описание структуры
 {
   "data": {
     "searchProducts": {
