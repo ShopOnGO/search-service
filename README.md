@@ -19,6 +19,12 @@ Query: `searchProducts`
 
 для генерации файлов надо зайти в internal и сделать go run github.com/99designs/gqlgen generate 
 
+для синхронизации Elastic Search с базой данных команда
+
+```
+docker compose run --rm logstash -f /usr/share/logstash/logstash_internal/postgres_to_es.conf
+```
+
 Входные параметры (`SearchInput`)
 
 ```

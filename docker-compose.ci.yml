@@ -16,6 +16,8 @@ services:
       - ELASTIC_URL=http://elasticsearch:9200
       - ELASTIC_INDEX=products
       - KAFKA_SEARCH_BROKERS=kafka:9092
+      - SEARCH_SERVICE_LOG_LEVEL=${SEARCH_SERVICE_LOG_LEVEL}
+      - SEARCH_SERVICE_FILE_LOG_LEVEL={SEARCH_SERVICE_FILE_LOG_LEVEL}
     env_file:
       - .env
     depends_on:
@@ -43,6 +45,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 6
+
+  logstash:
+    image: elastic/logstash:7.17.13
+    container_name: logstash
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./internal/logstash:/usr/share/logstash/logstash_internal
+    env_file:
+      - .env
+    environment:
+      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+    networks:
+      - shopongo_default
 
   test:
     image: golang:1.24
