@@ -32,8 +32,8 @@ func (s *SearchService) AddProductToElasticSearch(product ProductCreatedEvent) e
 		"description": product.Description,
 		"category_id": product.CategoryID,
 		"brand_id":    product.BrandID,
-		"image_urls":  product.ImageKeys,
-		"video_urls":  product.VideoKeys,
+		"image_urls":  product.ImageURLs,
+		"video_urls":  product.VideoURLs,
 		"material":    product.Material,
     	"is_active":   product.IsActive,
 	}

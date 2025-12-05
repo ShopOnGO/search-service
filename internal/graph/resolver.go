@@ -33,6 +33,7 @@ func ConvertESProductToModel(p *search.ESProduct) *model.Product {
 			Dimensions:  &v.Dimensions,
 			MinOrder:    int32(v.MinOrder),
 			IsActive:    v.IsActive,
+			ImageUrls:   v.ImageURLs, 
 		})
 	}
 
@@ -45,6 +46,8 @@ func ConvertESProductToModel(p *search.ESProduct) *model.Product {
 		CategoryID:  int32(p.CategoryID),
 		BrandID:     int32(p.BrandID),
 		IsActive:    p.IsActive,
+		ImageUrls:   p.ImageURLs,
+		VideoUrls:   p.VideoURLs,
 		Variants:    variants,
 	}
 }
