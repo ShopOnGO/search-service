@@ -103,6 +103,49 @@ query Search($in: SearchInput!) {
 }
 ```
 
+```
+{
+  "in": {
+    "name": "Shirt",
+    "minPrice": 1000,
+    "maxPrice": 5000,
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+```
+{
+  "in": {
+    "material": "cotton",
+    "color": "red",
+    "size": "XL"
+  }
+}
+```
+
+
+```
+{
+  "in": {
+    "brandID": 5,
+    "categoryID": 12
+  }
+}
+```
+
+
+```
+{
+  "in": {
+    "sku": "TSHIRT-BLK-001",
+    "stock": 10
+  }
+}
+```
+
+
 🛠️ Запуск
 docker-compose up --build
 
