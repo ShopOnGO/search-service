@@ -41,6 +41,9 @@ query Search($in: SearchInput!) {
       material
       category_id
       brand_id
+      is_active
+      image_urls
+      video_urls
       variants {
         variant_id
         sku
@@ -49,6 +52,7 @@ query Search($in: SearchInput!) {
         colors
         stock
         rating
+        image_urls
       }
     }
   }
@@ -75,25 +79,32 @@ query Search($in: SearchInput!) {
     "searchProducts": {
       "products": [
         {
-          "id": 1,
-          "name": "Футболка хлопковая",
-          "description": "Мягкая хлопковая футболка",
-          "categoryID": 1,
-          "brandID": 1,
+          "id": 14,
+          "name": "Жилет «Utility Vest»",
+          "description": "Многофункциональный жилет с карманами, для городской среды",
+          "material": "канвас",
+          "category_id": 4,
+          "brand_id": 4,
+          "is_active": true,
+          "image_urls": [
+            "http://localhost:8084/media/vest1.jpg",
+            "http://localhost:8084/media/vest2.jpg"
+          ],
+          "video_urls": [],
           "variants": [
             {
-              "variantID": "var_1",
-              "sku": "T-SHIRT-001",
-              "price": 1500.0,
-              "sizes": [42, 44, 46],
-              "colors": ["белый", "черный"],
-              "material": "хлопок",
-              "stock": 100,
-              "rating": 4.5
+              "variant_id": 7,
+              "sku": "UTV-VE-OLIVE-M",
+              "price": 54.99,
+              "sizes": "M",
+              "colors": "Олива",
+              "stock": 27,
+              "rating": 0,
+              "image_urls": []
             }
           ]
-        }
-      ],
+        },
+      ]
       "total": 150,
       "page": 1,
       "limit": 20,
