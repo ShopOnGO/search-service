@@ -4,15 +4,11 @@ services:
     container_name: search_container
     build: ./
     command: >
-      sh -c "./wait-for-db.sh go_shop_postgres:5432 -- \
+      sh -c "./wait-for-db.sh -- \
             ./wait-for-es.sh elasticsearch 9200 -- \
             ./search_service migrate"
     environment:
-      - POSTGRES_HOST=go_shop_postgres
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PORT=5432
+      - DSN=${DSN}
       - ELASTIC_URL=http://elasticsearch:9200
       - ELASTIC_INDEX=products
       - KAFKA_SEARCH_BROKERS=kafka:9092
@@ -53,6 +49,7 @@ services:
       - elasticsearch
     volumes:
       - ./internal/logstash:/usr/share/logstash/logstash_internal
+      - ./internal/logstash/postgres_to_es.conf:/usr/share/logstash/pipeline/logstash.conf
     env_file:
       - .env
     environment:

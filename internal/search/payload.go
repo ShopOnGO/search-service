@@ -1,21 +1,32 @@
 package search
 
 type ProductCreatedEvent struct {
-	Action    	string 		`json:"action"`
-	ProductID 	uint   		`json:"product_id"`
+	Action      string                 `json:"action"`
+	ProductID   uint                   `json:"product_id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Material    string                 `json:"material"`
+	IsActive    bool                   `json:"is_active"`
+	CategoryID  uint                   `json:"category_id"`
+	BrandID     uint                   `json:"brand_id"`
 
-	Name        string  	`json:"name"`
-	Description string  	`json:"description"`
-	Material    string      `json:"material"`
-	IsActive    bool        `json:"is_active"`
-	ImageURLs   []string    `json:"image_urls"`
-	VideoURLs   []string    `json:"video_urls"`
+	Variants    []ProductVariantInput  `json:"variants"`
+}
 
-	CategoryID  uint    	`json:"category_id"`
-	BrandID     uint    	`json:"brand_id"`
-	
-	ImageKeys  	[]string	`json:"image_keys"`
-	VideoKeys  	[]string 	`json:"video_keys"`
-
-	Variants    []ESVariant `json:"variants"`
+type ProductVariantInput struct {
+	VariantID      uint     `json:"variant_id"`
+	SKU            string   `json:"sku"`
+	Price          float64  `json:"price"`
+	Discount       float64  `json:"discount"`
+	Stock          int      `json:"stock"`
+	Reserved_stock int      `json:"reserved_stock"`
+	Rating         float64  `json:"rating"`
+	ImageURLs      []string `json:"images"` 
+	Sizes          string   `json:"sizes"`
+	Colors         string   `json:"colors"`
+	Barcode        string   `json:"barcode"`
+	Dimensions     string   `json:"dimensions"`
+	MinOrder       int      `json:"min_order"`
+	IsActive       bool     `json:"is_active"`
+	ReviewCount    int      `json:"review_count"`
 }
